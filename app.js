@@ -22,19 +22,19 @@ const Stopwatch = ReactRedux.connect(mapStateToProps, mapDispatchToProps)( props
 
 const update = (model = { running: false, time: 0 }, action = {type: ''}) => {
     switch (action.type) {
-        case "TICK":
+        case 'TICK':
             return Object.assign({}, model, {
                 time: model.time + (model.running ? 1 : 0)
             });
-        case "START":
+        case 'START':
             return Object.assign({}, model, {
                 running: true
             });
-        case "STOP":
+        case 'STOP':
             return Object.assign({}, model, {
                 running: false
             });
-        case "RESET":
+        case 'RESET':
             return Object.assign({}, model, {
                 time: 0,
                 running: false
@@ -51,7 +51,7 @@ ReactDOM.render(
     <ReactRedux.Provider store={container}>
         <Stopwatch />
     </ReactRedux.Provider>,
-    document.getElementById("root")
+    document.getElementById('root')
 );
 
 setInterval(() => {
