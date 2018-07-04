@@ -1,25 +1,24 @@
-const view = m => {
-    const minutes = Math.floor(m.time / 60);
-    const seconds = m.time - minutes * 60;
-    const minutesFormatted = `${minutes > 0 ? "0" : ""}${minutes}`;
-    const secondsFormatted = `${seconds > 0 ? "0" : ""}${seconds}`;
+const mapStateToProps = state => state;
+const mapDispatchToProps = (dispatch, props) => ({
+    onStart: () => { dispatch({type: 'START'}); },
+    onStop: () => { dispatch({type: 'STOP'}); },
+    onReset: () => { dispatch({type: 'RESET'}); },
+});
 
-    const handler = () => {
-        container.dispatch(m.running ? {type: 'STOP'} : {type: 'START'});
-    };
-
-    const reset = () => {
-        container.dispatch({type: 'RESET'});
-    }
+const Stopwatch = ReactRedux.connect(mapStateToProps, mapDispatchToProps)( props => {
+    const minutes = Math.floor(props.time / 60);
+    const seconds = props.time - minutes * 60;
+    const minutesFormatted = `${minutes < 10 ? '0' : ''}${minutes}`;
+    const secondsFormatted = `${seconds < 10 ? '0' : ''}${seconds}`;
 
     return (
         <div>
-            <p>{minutesFormatted}:{seconds > 10 ? seconds : "0" + seconds}</p>
-            <button onClick={handler}>{m.running ? "STOP" : "START"}</button>
-            <button onClick={reset}>Reset</button>
+            <p>{minutesFormatted}:{secondsFormatted}</p>
+            <button onClick={props.running? props.onStop : props.onStart}>{props.running ? 'STOP' : 'START'}</button>
+            <button onClick={props.onReset}>Reset</button>
         </div>
     );
-};
+});
 
 const update = (model = { running: false, time: 0 }, action = {type: ''}) => {
     switch (action.type) {
@@ -47,14 +46,13 @@ const update = (model = { running: false, time: 0 }, action = {type: ''}) => {
 
 let container = Redux.createStore(update);
 
-const render = () => {
-    ReactDOM.render(
-        view(container.getState()), 
-        document.getElementById("root")
-    );
-};
 
-container.subscribe(render);
+ReactDOM.render(
+    <ReactRedux.Provider store={container}>
+        <Stopwatch />
+    </ReactRedux.Provider>,
+    document.getElementById("root")
+);
 
 setInterval(() => {
     container.dispatch({type: 'TICK'});
