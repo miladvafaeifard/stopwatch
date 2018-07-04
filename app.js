@@ -5,11 +5,11 @@ const view = m => {
     const secondsFormatted = `${seconds > 0 ? "0" : ""}${seconds}`;
 
     const handler = () => {
-        container.dispatch(m.running ? 'STOP' : 'START');
+        container.dispatch(m.running ? {type: 'STOP'} : {type: 'START'});
     };
 
     const reset = () => {
-        container.dispatch('RESET');
+        container.dispatch({type: 'RESET'});
     }
 
     return (
@@ -21,8 +21,8 @@ const view = m => {
     );
 };
 
-const update = (model = { running: false, time: 0 }, action) => {
-    switch (action) {
+const update = (model = { running: false, time: 0 }, action = {type: ''}) => {
+    switch (action.type) {
         case "TICK":
             return Object.assign({}, model, {
                 time: model.time + (model.running ? 1 : 0)
@@ -40,25 +40,12 @@ const update = (model = { running: false, time: 0 }, action) => {
                 time: 0,
                 running: false
             });
+        default:
+            return model;
     }
 };
 
-const createStore = reducer => {
-    let internalState;
-    let handlers = [];
-    return {
-        dispatch: (action) => {
-            internalState = reducer(internalState, action);
-            handlers.map(handler => handler());
-        },
-        subscribe: (handler) => {
-            handlers.push(handler);
-        },
-        getState: () => internalState,
-    }
-};
-
-let container = createStore(update);
+let container = Redux.createStore(update);
 
 const render = () => {
     ReactDOM.render(
@@ -70,5 +57,5 @@ const render = () => {
 container.subscribe(render);
 
 setInterval(() => {
-    container.dispatch('TICK');
+    container.dispatch({type: 'TICK'});
 }, 1000);
